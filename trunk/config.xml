@@ -1,0 +1,20 @@
+<config>
+  <settings>
+    <minScore>80</minScore>
+    <maxNum>3</maxNum>
+  </settings>
+  <tags>
+    <tag>90s</tag>
+    <tag>Eurodance</tag>
+  </tags>
+  <tagmap>
+    <mapping>
+      <from>1990</from>
+      <to>90s</to>
+    </mapping>
+    <mapping>
+      <from>1980</from>
+      <to>80s</to>
+  </mapping>
+  </tagmap>
+</config>
