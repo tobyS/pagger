@@ -4,47 +4,88 @@ import lastfm.service
 import lastfm.artist
 import lastfm.track
 
+import re
+
+# import lastfm.service
+# import lastfm.artist
+# import lastfm.track
+
 class Handler:
+
+    _file = None
+
+    _id3 = None
 
     _config = None
 
-    def __init__(self, config):
+    _service = lastfm.service.Service()
+
+    _title = None
+
+    _artist = None
+
+    _tags = None
+
+    def __init__(self, config, file):
         self._config = config
+        self._file = file
+        self._id3 = ID3(file)
 
-    def handle(self, file):
-        if not file[-4:] == '.mp3':
-            return
-        # artist, title = self._read_id3(file)
-        self._read_id3(file)
+    def get_title(self):
+        if self._title != None:
+            return self._title
+        titles = self._id3.getall('TIT2')
+        if len(titles) > 0:
+            return str(titles[0])
+        else:
+            return ''
 
-    def _read_id3(self, file):
-        id3 = ID3(file)
+    def get_artist(self):
+        if self._artist != None:
+            return self._artist
+        artists = self._id3.getall('TPE1')
+        if len(artists) > 0:
+            return str(artists[0])
+        else:
+            return ''
 
-        titles = id3.getall('TIT2')
-        artists = id3.getall('TPE1')
-        title = titles[0] if len(titles) > 0 else ''
-        artist = artists[0] if len(artists) > 0 else ''
+    def get_tags(self):
+        if self._tags != None:
+            return self._tags
 
-        print file
-        self._lookup_tags(artist, title)
+        artist = self._clean_string(self.get_artist())
+        title = self._clean_string(self.get_title())
 
-    def _lookup_tags(self, artist, title):
-        service = lastfm.service.Service('682587831457dcf13f569c79b930d866')
-        artist = lastfm.artist.Artist(service, artist)
-        track = lastfm.track.Track(service, artist, title)
-        for tag in self._filter_tags(track.get_top_tags()):
-            print u'    ' + tag.name + u' (' + tag.url + u') = ' + str(tag.count)
-        
+        tags = filter(self._filter_tags, self._fetch_title_tags(artist, title))
 
-    def _filter_tags(self, tags):
-        newtags = []
-        i = 0
-        for tag in tags:
-            i = i + 1
-            if tag.count == -1 or tag.count > self._config.settings['minScore']:
-                newtags.append(tag)
-            if i > self._config.settings['maxNum']:
-                break
-        return newtags
+        if len(tags) == 0:
+            tags = filter(self._filter_tags, self._fetch_artist_tags(artist))
 
+        tags = map(self._extract_tags, tags)
+        return set(tags)
+
+    def add_tag(self, tag):
+        if self._tags == None:
+            self.get_tags()
+        self._tags.append(tag)
+
+    def _clean_string(self, string):
+        return re.sub('\(.*$', '', string)
+
+    def _fetch_title_tags(self, artist, title):
+        artist = lastfm.artist.Artist(self._service, artist)
+        track = lastfm.track.Track(self._service, artist, title)
+        return track.get_top_tags()
+
+    def _fetch_artist_tags(self, artist):
+        artist = lastfm.artist.Artist(self._service, artist)
+        return artist.get_top_tags()
+
+    def _filter_tags(self, tag):
+        if tag.count < -1 or tag.count >= self._config.settings['minScore']:
+            return True
+        return False
+
+    def _extract_tags(self, tag):
+        return tag.name
 
