@@ -5,7 +5,7 @@ import re
 
 import config
 import mp3.handler
-import dialog.
+import shell
 
 class Main:
 
@@ -36,12 +36,11 @@ class Main:
         tags = handler.get_tags()
         mapped = self._map_tags(tags)
 
-        if len(mapped) < 1 and len(tags) > 0:
-            dialog = NewMapDialog(config, tags)
-            mapped = dialog.get_result()
-        elif len(mapped) < 1:
-            dialog = CustomTagsDialog(config)
-            mapped = dialog.get_result()
+        if len(mapped) < 1:
+            cmd = shell.Shell(handler, self._config)
+            cmd.cmdloop(
+                'No tags mapped for "' + handler.get_title() + '" by "' + handler.get_artist() + '"'
+            )
 
         print mapped
         
