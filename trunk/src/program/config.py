@@ -34,9 +34,9 @@ class Config:
     def _parse_tags(self, tags):
         for node in tags.childNodes:
             if node.nodeType == node.ELEMENT_NODE:
-				tag = node.firstChild.nodeValue.strip()
+                tag = node.firstChild.nodeValue.strip()
                 self.tags.add(tag)
-				self.tagmap[tag.lower()] = tag
+                self.tagmap[tag.lower()] = tag
     
     def _parse_tagmap(self, tagmap):
         for node in tagmap.childNodes:
