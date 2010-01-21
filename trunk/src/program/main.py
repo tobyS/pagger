@@ -1,9 +1,11 @@
 import sys
 import os
 import os.path
+import re
 
 import config
 import mp3.handler
+import dialog.
 
 class Main:
 
@@ -25,7 +27,28 @@ class Main:
         self._dir = sys.argv[2]
 
     def run(self):
-        handler = mp3.handler.Handler(self._config)
         for root, dirs, files in os.walk(self._dir):
             for file in files:
-                handler.handle(os.path.join(root, file))
+                self._handle(os.path.join(root, file))
+
+    def _handle(self, file):
+        handler = mp3.handler.Handler(self._config, file)
+        tags = handler.get_tags()
+        mapped = self._map_tags(tags)
+
+        if len(mapped) < 1 and len(tags) > 0:
+            dialog = NewMapDialog(config, tags)
+            mapped = dialog.get_result()
+        elif len(mapped) < 1:
+            dialog = CustomTagsDialog(config)
+            mapped = dialog.get_result()
+
+        print mapped
+        
+    def _map_tags(self, tags):
+        mapped = []
+        for tag in tags:
+            if tag.lower() in self._config.tagmap:
+                mapped.append(self._config.tagmap[tag.lower()])
+        return set(mapped)
+
