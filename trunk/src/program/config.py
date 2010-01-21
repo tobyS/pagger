@@ -34,11 +34,13 @@ class Config:
     def _parse_tags(self, tags):
         for node in tags.childNodes:
             if node.nodeType == node.ELEMENT_NODE:
-                self.tags.add(node.firstChild.nodeValue)
+				tag = node.firstChild.nodeValue.strip()
+                self.tags.add(tag)
+				self.tagmap[tag.lower()] = tag
     
     def _parse_tagmap(self, tagmap):
         for node in tagmap.childNodes:
             if node.nodeType == node.ELEMENT_NODE:
-                from_val = node.getElementsByTagName('from').item(0).firstChild.nodeValue
-                to_val = node.getElementsByTagName('to').item(0).firstChild.nodeValue
-                self.tagmap[from_val] = to_val
+                from_val = node.getElementsByTagName('from').item(0).firstChild.nodeValue.strip()
+                to_val = node.getElementsByTagName('to').item(0).firstChild.nodeValue.strip()
+                self.tagmap[from_val.lower()] = to_val
