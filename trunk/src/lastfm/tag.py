@@ -8,3 +8,9 @@ class Tag:
         self.url = url
         if len(params) > 0:
             self.count = params[0]
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return '<Tag( name: ' + self.name + ', url: ' + self.url + ', count: ' + str(self.count) + ')>'

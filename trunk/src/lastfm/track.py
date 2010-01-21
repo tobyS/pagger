@@ -14,6 +14,12 @@ class Track (TagParser):
         self.artist = artist
         self.title = title
 
+	def __str__(self):
+		return self.title
+
+	def __repr__(self):
+		return '<Track( artist: ' + repr(self.artist) + ', name: ' + self.name + ')>'
+
     def get_top_tags(self):
         return self.parse_tags(
             self._service.call(
