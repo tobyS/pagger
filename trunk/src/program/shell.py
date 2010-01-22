@@ -30,22 +30,64 @@ class Shell (cmd.Cmd):
         
         if to_tag not in self._config.tags:
             return self._error(u'Tag "' + to_tag + u'" not recognized.')
+
+        self._config.add_mapping(from_tag, to_tag)
         
         print u'Established new mapping "' + from_tag + u'" → "' + to_tag + u'"'
 
     def help_map(self):
         print 'Adds a new tag mapping'
 
+    # 'add' command
+
+    def do_add(self, s):
+        params = shlex.split(s)
+
+        if len(params) != 1:
+            return self._error(u'Expected exactly 1 parameter.')
+
+        tag = params[0]
+
+        if tag in self._config.tags:
+            return self._error(u'Genre "' + tag + '" already in config.')
+        
+        self._config.add_tag(tag)
+
+        print u'Added genre "' + tag + '" to config.'
+
+    def help_add(self):
+        print u'Adds a new genre to the configuration.'
+
+    # 'assign' command
+
+    def do_assign(self, s):
+        params = shlex.split(s)
+
+        if len(params) != 1:
+            return self._error(u'Expected exactly 1 parameter.')
+        
+        tag = params[0]
+
+        if tag not in self._config.tags:
+            return self._error(u'Tag "' + tag + '" not available. Add it first?')
+
+        self._handler.add_tag(tag)
+
+        print u'Tag "' + tag + '" successfully added.'
+
+    def help_assign(self, s):
+        print u'Assign a tag to the song.'
+
     # 'avail' command
 
     def do_avail(self, s):
-        print u'Available tags'
+        print u'Available genres'
         print u'--------------'
         for tag in self._config.tags:
             print tag
 
     def help_avail(self):
-        print u'Lists all defined tags'
+        print u'Lists all available genres'
 
     # 'tags' command
 
