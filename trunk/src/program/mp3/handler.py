@@ -62,12 +62,13 @@ class Handler:
             tags = filter(self._filter_tags, self._fetch_artist_tags(artist))
 
         tags = map(self._extract_tags, tags)
-        return set(tags)
+        self._tags = set(tags)
+        return self._tags
 
     def add_tag(self, tag):
         if self._tags == None:
             self.get_tags()
-        self._tags.append(tag)
+        self._tags.add(tag)
 
     def _clean_string(self, string):
         return re.sub('\(.*$', '', string)
