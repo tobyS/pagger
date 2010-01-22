@@ -17,7 +17,12 @@ class Config:
 
     tagmap = {}
 
+    _changed = False
+
+    _file = None
+
     def __init__(self, file):
+        self._file = file
         self.load_file(file)
 
     def load_file(self, file):
@@ -25,28 +30,32 @@ class Config:
         self._parse_settings(dom.getElementsByTagName('settings').item(0))
         self._parse_tags(dom.getElementsByTagName('tags').item(0))
         self._parse_tagmap(dom.getElementsByTagName('tagmap').item(0))
+        self._changed = False
 
     def add_tag(self, tag):
         self.tags.add(tag)
         self.tagmap[tag.lower()] = tag
+        self._changed = True
 
     def add_mapping(self, from_tag, to_tag):
         self.tagmap[from_tag.lower()] = to_tag
+        self._changed = True
 
     def set(self, key, val):
         if key not in self._available_settings:
             raise RuntimeError('Invalid setting "' + key + '".')
         self.settings[key] = self._available_settings[key](val)
+        self._changed = True
 
-    def save(self, file):
+    def save(self):
         impl = getDOMImplementation()
         xml = impl.createDocument(None, 'config', None)
         config_elem = xml.documentElement
 
         settings_elem = config_elem.appendChild(xml.createElement('settings'))
-        for key, val in self.settings:
+        for key, val in self.settings.items():
             setting_elem = settings_elem.appendChild(xml.createElement(key))
-            setting_elem.appendChild(xml.createTextNode(val))
+            setting_elem.appendChild(xml.createTextNode(str(val)))
 
         tags_elem = config_elem.appendChild(xml.createElement('tags'))
         for tag in self.tags:
@@ -54,14 +63,20 @@ class Config:
             tag_elem.appendChild(xml.createTextNode(tag))
 
         tagmap_elem = config_elem.appendChild(xml.createElement('tagmap'))
-        for from_tag, to_tag in self.tagmap:
+        for from_tag, to_tag in self.tagmap.items():
+            if from_tag == to_tag.lower():
+                continue
             mapping_elem = tagmap_elem.appendChild(xml.createElement('mapping'))
             from_elem = mapping_elem.appendChild(xml.createElement('from'))
             from_elem.appendChild(xml.createTextNode(from_tag))
             to_elem = mapping_elem.appendChild(xml.createElement('to'))
             to_elem.appendChild(xml.createTextNode(to_tag))
 
-        xml.writexml(file, '', '  ', "\n", 'UTF-8')
+        xml.writexml(open(self._file, 'w'), '', '  ', "\n", 'UTF-8')
+        self._changed = False
+
+    def changed(self):
+        return self._changed
 
     def _parse_settings(self, settings):
         for node in settings.childNodes:

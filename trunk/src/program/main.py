@@ -43,7 +43,13 @@ class Main:
             )
             mapped = self._map_tags(handler.get_tags())
 
-        print mapped
+        if self._config.changed():
+            self._config.save()
+
+        print 'Assigning genres "' + ', '.join(mapped) + '" to "' + handler.get_title() + '" by "' + handler.get_artist() + '".'
+
+        handler.set_genres(mapped)
+        handler.save()
         
     def _map_tags(self, tags):
         mapped = []

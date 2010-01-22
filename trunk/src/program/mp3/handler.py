@@ -1,4 +1,5 @@
 from mutagen.id3 import ID3
+from mutagen.id3 import TCON
 
 import lastfm.service
 import lastfm.artist
@@ -69,6 +70,12 @@ class Handler:
         if self._tags == None:
             self.get_tags()
         self._tags.add(tag)
+
+    def set_genres(self, genres):
+        self._id3['TCON'] = TCON(3, list(genres))
+
+    def save(self):
+        self._id3.save()
 
     def _clean_string(self, string):
         return re.sub('\(.*$', '', string)
