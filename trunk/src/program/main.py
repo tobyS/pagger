@@ -36,11 +36,12 @@ class Main:
         tags = handler.get_tags()
         mapped = self._map_tags(tags)
 
-        if len(mapped) < 1:
+        while len(mapped) < 1:
             cmd = shell.Shell(handler, self._config)
             cmd.cmdloop(
                 'No tags mapped for "' + handler.get_title() + '" by "' + handler.get_artist() + '"'
             )
+            mapped = self._map_tags(handler.get_tags())
 
         print mapped
         
