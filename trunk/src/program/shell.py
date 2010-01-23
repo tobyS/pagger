@@ -5,17 +5,28 @@ import shlex
 
 class Shell (cmd.Cmd):
 
-    _handler = None
-
     _config = None
 
-    def __init__(self, handler, config):
-        cmd.Cmd.__init__(self)
-        self._handler = handler
-        self._config = config
+    _mp3 = None
 
-    def postcmd(self, stop, line):
-        return stop
+    _tag = None
+
+    _list_commands = [
+        'available',
+        'ignored',
+        'mapping',
+
+        'assigned',
+        'raw',
+        'mapped',
+        'unmapped'
+    ]
+
+    def __init__(self, config, mp3, tag):
+        cmd.Cmd.__init__(self)
+        self._config = config
+        self._mp3 = mp3
+        self._tag = tag
 
     # 'map' command
 
@@ -23,13 +34,13 @@ class Shell (cmd.Cmd):
         params = shlex.split(s)
         
         if len(params) != 2:
-            return self._error(u'Expected exactly 2 parameters.')
+            return self._error(u'Expected exactly 2 parameters: <from tag> <to tag>.')
 
         from_tag = params[0]
         to_tag = params[1]
         
         if to_tag not in self._config.tags:
-            return self._error(u'Tag "' + to_tag + u'" not recognized.')
+            return self._error(u'Tag "' + to_tag + u'" not recognized. Maybe add it first?')
 
         self._config.add_mapping(from_tag, to_tag)
         
@@ -44,7 +55,7 @@ class Shell (cmd.Cmd):
         params = shlex.split(s)
 
         if len(params) != 1:
-            return self._error(u'Expected exactly 1 parameter.')
+            return self._error(u'Expected exactly 1 parameter: <genre>.')
 
         tag = params[0]
 
@@ -64,41 +75,94 @@ class Shell (cmd.Cmd):
         params = shlex.split(s)
 
         if len(params) != 1:
-            return self._error(u'Expected exactly 1 parameter.')
+            return self._error(u'Expected exactly 1 parameter: <tag>.')
         
         tag = params[0]
 
         if tag not in self._config.tags:
             return self._error(u'Tag "' + tag + '" not available. Add it first?')
 
-        self._handler.add_tag(tag)
+        self._tag.add_tag(tag)
 
         print u'Tag "' + tag + '" successfully added.'
 
     def help_assign(self, s):
         print u'Assign a tag to the song.'
 
-    # 'avail' command
+    # 'list' command
 
-    def do_avail(self, s):
-        print u'Available genres'
-        print u'--------------'
+    def do_list(self, s):
+        params = shlex.split(s)
+
+        if len(params) < 1:
+            params[0] = 'assigned'
+
+        command = params[0]
+
+        if command not in self._list_commands:
+            self._error(u'Unknown command "' + command + '". Available are: ' + ', '.join(self._list_commands))
+
+        getattr(self, '_print_' + command)()
+
+    def help_list(self):
+        print u'List tags/genres. Available sub-commands are: ' + ', '.join(self._list_commands) + '.'
+
+    def complete_list(self, text, line, begindex, endindex):
+        return [i for i in self._list_commands if i.startswith(text)]
+
+    def _print_available(self):
+        self._print_heading(u'Available genres')
         for tag in self._config.tags:
             print tag
 
-    def help_avail(self):
-        print u'Lists all available genres'
-
-    # 'tags' command
-
-    def do_tags(self, s):
-        print u'Assigned tags'
-        print u'-------------'
-        for tag in self._handler.get_tags():
+    def _print_ignored(self):
+        self._print_heading(u'Ignored tag matchings')
+        for tag in self._config.ignore:
             print tag
 
-    def help_tags(self):
-        print u'Displays the tags found for the track'
+    def _print_mapping(self):
+        self._print_heading(u'Overall tag mapping')
+        for key, val in self._config.tagmap.items():
+            print u'{0!s: <10} → {1!s}'.format(key, val)
+
+    def _print_assigned(self):
+        self._print_heading(u'Assigned genres')
+        for tag in self._tag.get_tags():
+            print tag
+
+    def _print_raw(self):
+        self._print_heading(u'Assigned tags')
+        for tag in self._tag.get_raw_tags():
+            print tag
+
+    def _print_mapped(self):
+        self._print_heading('Currently mapped')
+        for key, val in self._tag.get_tag_mapping().items():
+            print u'{0!s: <10} → {1!s}'.format(key, val)
+
+    def _print_unmapped(self):
+        self._print_heading(u'Not mapped tags')
+        for tag in self._tag.get_unmapped_tags():
+            print tag
+
+    def _print_heading(self, heading):
+        print heading
+        print '-' * len(heading)
+
+    # 'ignore' command
+
+    def do_ignore(self, s):
+        params = shlex.split(s)
+
+        if len(params) != 1:
+            return self._error(u'Expected exactly 1 parameter: <tag>.')
+
+        self._config.ignore.add(params[0])
+
+        print u'Added tag "' + tag + '" to ignore list.'
+
+    def help_ignore(self):
+        print u'Add a tag to the ignore list.'
 
     # 'q' command
 

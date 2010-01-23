@@ -4,7 +4,8 @@ import os.path
 import re
 
 import config
-import mp3.handler
+import handler.mp3
+import handler.tags
 import shell
 
 class Main:
@@ -32,24 +33,23 @@ class Main:
                 self._handle(os.path.join(root, file))
 
     def _handle(self, file):
-        handler = mp3.handler.Handler(self._config, file)
-        tags = handler.get_tags()
-        mapped = self._map_tags(tags)
+        mp3 = handler.mp3.Handler(file)
+        tag = handler.tags.Handler(self._config, mp3)
 
-        while len(mapped) < 1:
-            cmd = shell.Shell(handler, self._config)
+        if tag.has_unmapped_tags():
+            unmapped = tag.get_unmapped_tags()
+            cmd = shell.Shell(self._config, mp3, tag)
             cmd.cmdloop(
-                'No tags mapped for "' + handler.get_title() + '" by "' + handler.get_artist() + '"'
+                'Unmapped tags mapped for "' + mp3.get_title() + '" by "' + mp3.get_artist() + '"'
             )
-            mapped = self._map_tags(handler.get_tags())
 
         if self._config.changed():
             self._config.save()
 
-        print 'Assigning genres "' + ', '.join(mapped) + '" to "' + handler.get_title() + '" by "' + handler.get_artist() + '".'
+        print 'Assigning genres "' + ', '.join(tag.get_tags()) + '" to "' + mp3.get_title() + '" by "' + mp3.get_artist() + '".'
 
-        handler.set_genres(mapped)
-        handler.save()
+        mp3.set_genres(tag.get_tags())
+        mp3.save()
         
     def _map_tags(self, tags):
         mapped = []
