@@ -15,6 +15,8 @@ class Config:
 
     tags = set()
 
+    ignore = set()
+
     tagmap = {}
 
     _changed = False
@@ -28,7 +30,10 @@ class Config:
     def load_file(self, file):
         dom = parse(file)
         self._parse_settings(dom.getElementsByTagName('settings').item(0))
-        self._parse_tags(dom.getElementsByTagName('tags').item(0))
+        self.tags = self._parse_set(dom.getElementsByTagName('tags').item(0), 'tag', str)
+        for tag in self.tags:
+            self.tagmap[tag.lower()] = tag
+        self.ignore = self._parse_set(dom.getElementsByTagName('ignore').item(0), 'match', str)
         self._parse_tagmap(dom.getElementsByTagName('tagmap').item(0))
         self._changed = False
 
@@ -53,30 +58,43 @@ class Config:
         config_elem = xml.documentElement
 
         settings_elem = config_elem.appendChild(xml.createElement('settings'))
-        for key, val in self.settings.items():
-            setting_elem = settings_elem.appendChild(xml.createElement(key))
-            setting_elem.appendChild(xml.createTextNode(str(val)))
+        self._save_settings(xml, settings_elem)
 
         tags_elem = config_elem.appendChild(xml.createElement('tags'))
-        for tag in self.tags:
-            tag_elem = tags_elem.appendChild(xml.createElement('tag'))
-            tag_elem.appendChild(xml.createTextNode(tag))
+        self._save_set(xml, tags_elem, 'tag', self.tags)
+
+        ignore_elem = config_elem.appendChild(xml.createElement('ignore'))
+        self._save_set(xml, ignore_elem, 'match', self.ignore)
 
         tagmap_elem = config_elem.appendChild(xml.createElement('tagmap'))
-        for from_tag, to_tag in self.tagmap.items():
-            if from_tag == to_tag.lower():
-                continue
-            mapping_elem = tagmap_elem.appendChild(xml.createElement('mapping'))
-            from_elem = mapping_elem.appendChild(xml.createElement('from'))
-            from_elem.appendChild(xml.createTextNode(from_tag))
-            to_elem = mapping_elem.appendChild(xml.createElement('to'))
-            to_elem.appendChild(xml.createTextNode(to_tag))
+        self._save_mappings(xml, tagmap_elem, self.tagmap)
 
         xml.writexml(open(self._file, 'w'), '', '  ', "\n", 'UTF-8')
         self._changed = False
 
     def changed(self):
         return self._changed
+
+    def _save_settings(self, xml, parent):
+        for key, val in self.settings.items():
+            setting_elem = parent.appendChild(xml.createElement(key))
+            setting_elem.appendChild(xml.createTextNode(str(val)))
+
+    def _save_mappings(self, xml, parent, dict):
+        for key, val in dict.items():
+            if key == val.lower():
+                continue
+            mapping_elem = parent.appendChild(xml.createElement('mapping'))
+            from_elem = mapping_elem.appendChild(xml.createElement('from'))
+            from_elem.appendChild(xml.createTextNode(key))
+            to_elem = mapping_elem.appendChild(xml.createElement('to'))
+            to_elem.appendChild(xml.createTextNode(val))
+
+
+    def _save_set(self, xml, parent, tag_name, set):
+        for item in set:
+            elem = parent.appendChild(xml.createElement(tag_name))
+            elem.appendChild(xml.createTextNode(str(item)))
 
     def _parse_settings(self, settings):
         for node in settings.childNodes:
@@ -87,6 +105,14 @@ class Config:
         for node in tags.childNodes:
             if node.nodeType == node.ELEMENT_NODE:
                 self.add_tag(node.firstChild.nodeValue.strip())
+
+    def _parse_set(self, root, elem_tag, type):
+        elements = set()
+        for node in root.childNodes:
+            if node.nodeType == node.ELEMENT_NODE and node.tagName == elem_tag:
+                elements.add(type(node.firstChild.nodeValue.strip()))
+
+        return elements
     
     def _parse_tagmap(self, tagmap):
         for node in tagmap.childNodes:
