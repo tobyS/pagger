@@ -12,14 +12,14 @@ class Shell (cmd.Cmd):
     _tag = None
 
     _list_commands = [
-        'available',
-        'ignored',
-        'mapping',
+        u'available',
+        u'ignored',
+        u'mapping',
 
-        'assigned',
-        'raw',
-        'mapped',
-        'unmapped'
+        u'assigned',
+        u'raw',
+        u'mapped',
+        u'unmappedu'
     ]
 
     def __init__(self, config, mp3, tag):
@@ -27,6 +27,14 @@ class Shell (cmd.Cmd):
         self._config = config
         self._mp3 = mp3
         self._tag = tag
+
+    def precmd(self, line):
+        print ''
+        return cmd.Cmd.precmd(self, line)
+
+    def postcmd(self, stop, line):
+        print ''
+        return cmd.Cmd.postcmd(self, stop, line)
 
     # 'map' command
 
@@ -60,11 +68,11 @@ class Shell (cmd.Cmd):
         tag = params[0]
 
         if tag in self._config.tags:
-            return self._error(u'Genre "' + tag + '" already in config.')
+            return self._error(u'Genre "' + tag + u'" already in config.')
         
         self._config.add_tag(tag)
 
-        print u'Added genre "' + tag + '" to config.'
+        print u'Added genre "' + tag + u'" to config.'
 
     def help_add(self):
         print u'Adds a new genre to the configuration.'
@@ -80,11 +88,11 @@ class Shell (cmd.Cmd):
         tag = params[0]
 
         if tag not in self._config.tags:
-            return self._error(u'Tag "' + tag + '" not available. Add it first?')
+            return self._error(u'Tag "' + tag + u'" not available. Add it first?')
 
         self._tag.add_tag(tag)
 
-        print u'Tag "' + tag + '" successfully added.'
+        print u'Tag "' + tag + u'" successfully added.'
 
     def help_assign(self, s):
         print u'Assign a tag to the song.'
@@ -95,17 +103,17 @@ class Shell (cmd.Cmd):
         params = shlex.split(s)
 
         if len(params) < 1:
-            params[0] = 'assigned'
+            params.append('assigned')
 
         command = params[0]
 
         if command not in self._list_commands:
-            self._error(u'Unknown command "' + command + '". Available are: ' + ', '.join(self._list_commands))
+            return self._error(u'Unknown command "' + command + u'". Available are: ' + u', '.join(self._list_commands))
 
-        getattr(self, '_print_' + command)()
+        getattr(self, u'_print_' + command)()
 
     def help_list(self):
-        print u'List tags/genres. Available sub-commands are: ' + ', '.join(self._list_commands) + '.'
+        print u'List tags/genres. Available sub-commands are: ' + u', '.join(self._list_commands) + u'.'
 
     def complete_list(self, text, line, begindex, endindex):
         return [i for i in self._list_commands if i.startswith(text)]
@@ -136,7 +144,7 @@ class Shell (cmd.Cmd):
             print tag
 
     def _print_mapped(self):
-        self._print_heading('Currently mapped')
+        self._print_heading(u'Currently mapped')
         for key, val in self._tag.get_tag_mapping().items():
             print u'{0!s: <10} → {1!s}'.format(key, val)
 
@@ -147,7 +155,7 @@ class Shell (cmd.Cmd):
 
     def _print_heading(self, heading):
         print heading
-        print '-' * len(heading)
+        print u'-' * len(heading)
 
     # 'ignore' command
 
@@ -157,9 +165,11 @@ class Shell (cmd.Cmd):
         if len(params) != 1:
             return self._error(u'Expected exactly 1 parameter: <tag>.')
 
-        self._config.ignore.add(params[0])
+        tag = params[0]
 
-        print u'Added tag "' + tag + '" to ignore list.'
+        self._config.ignore.add(tag)
+
+        print u'Added tag "' + tag + u'" to ignore list.'
 
     def help_ignore(self):
         print u'Add a tag to the ignore list.'
@@ -170,7 +180,7 @@ class Shell (cmd.Cmd):
         return True
 
     def help_quit(self):
-        print 'Quits the shell. Note that you need to save if changes should not be lost.'
+        print u'Quits the shell. Note that you need to save if changes should not be lost.'
 
     do_q = do_quit
     help_q = help_quit
@@ -180,7 +190,7 @@ class Shell (cmd.Cmd):
     # 'help' command
 
     def help_help(self):
-        print 'Prints available commands. Use "help <command>" to get command help.'
+        print u'Prints available commands. Use "help <command>" to get command help.'
 
     # misc
 

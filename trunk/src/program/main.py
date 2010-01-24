@@ -1,4 +1,4 @@
-import sys
+import sys, traceback
 import os
 import os.path
 import re
@@ -30,25 +30,40 @@ class Main:
     def run(self):
         for root, dirs, files in os.walk(self._dir):
             for file in files:
-                self._handle(os.path.join(root, file))
+                try:
+                    self._handle(os.path.join(root, file))
+                except StandardError as e:
+                    print u'Error processing "', file, u'". Error:', e, u' (', type(e), u')'
+                    traceback.print_exc(file=sys.stdout)
 
     def _handle(self, file):
         mp3 = handler.mp3.Handler(file)
+        
+        if mp3.is_processed():
+            return
+
         tag = handler.tags.Handler(self._config, mp3)
 
         if tag.has_unmapped_tags():
             unmapped = tag.get_unmapped_tags()
             cmd = shell.Shell(self._config, mp3, tag)
             cmd.cmdloop(
-                'Unmapped tags mapped for "' + mp3.get_title() + '" by "' + mp3.get_artist() + '"'
+                u'Unmapped tags mapped for "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'"'
+            )
+
+        if len(tag.get_tags()) == 0:
+            cmd = shell.Shell(self._config, mp3, tag)
+            cmd.cmdloop(
+                u'No fitting tags found for "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'". Please assign manually!'
             )
 
         if self._config.changed():
             self._config.save()
 
-        print 'Assigning genres "' + ', '.join(tag.get_tags()) + '" to "' + mp3.get_title() + '" by "' + mp3.get_artist() + '".'
+        print u'Assigning genres "' + u', '.join(tag.get_tags()) + u'" to "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'".'
 
         mp3.set_genres(tag.get_tags())
+        mp3.set_processed()
         mp3.save()
         
     def _map_tags(self, tags):
