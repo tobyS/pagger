@@ -1,5 +1,8 @@
 from mutagen.id3 import ID3
 from mutagen.id3 import TCON
+from mutagen.id3 import TXXX
+
+from datetime import datetime
 
 class Handler:
 
@@ -38,6 +41,13 @@ class Handler:
 
     def set_genres(self, genres):
         self._id3['TCON'] = TCON(3, list(genres))
+
+    def is_processed(self):
+        return u'TXXX:PaggerProcessed' in self._id3
+
+    def set_processed(self):
+        date = datetime.now()
+        self._id3['TXXX:PaggerProcessed'] = TXXX(3, u'PaggerProcessed', str(date))
 
     def save(self):
         self._id3.save()
