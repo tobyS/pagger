@@ -44,10 +44,10 @@ class Handler:
         return self._tag_mapping
 
     def has_unmapped_tags(self):
-        return self._raw_tags != set(self._tag_mapping.values())
+        return self._raw_tags != set(self._tag_mapping.keys())
 
     def get_unmapped_tags(self):
-        return self._raw_tags - set(self._tag_mapping.values())
+        return self._raw_tags - set(self._tag_mapping.keys())
 
     def get_raw_tags(self):
         return self._raw_tags
@@ -83,9 +83,12 @@ class Handler:
         return artist.get_top_tags()
 
     def _filter_tags(self, tag):
-        if tag.count < 0 or tag.count >= self._config.settings['minScore']:
-            return True
-        return False
+        if tag.count > -1 and tag.count < self._config.settings['minScore']:
+            return False
+        for regex in self._config.ignore:
+            if re.search(regex, tag.name):
+                return False
+        return True
 
     def _extract_tags(self, tag):
         return tag.name
