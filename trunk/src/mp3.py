@@ -4,7 +4,7 @@ from mutagen.id3 import TXXX
 
 from datetime import datetime
 
-class Handler:
+class MP3:
 
     _file = None
 

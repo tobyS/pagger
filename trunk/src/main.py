@@ -3,10 +3,10 @@ import os
 import os.path
 import re
 
-import config
-import handler.mp3
+from config import Config
+from mp3 import MP3
 import handler.tags
-import shell
+from shell import Shell
 
 class Main:
 
@@ -24,7 +24,7 @@ class Main:
         if not os.path.isdir(sys.argv[2]):
             raise RuntimeError(sys.argv[2] + ' is not a directory')
 
-        self._config = config.Config(sys.argv[1])
+        self._config = Config(sys.argv[1])
         self._dir = sys.argv[2]
 
     def run(self):
@@ -37,16 +37,18 @@ class Main:
                     traceback.print_exc(file=sys.stdout)
 
     def _handle(self, file):
-        mp3 = handler.mp3.Handler(file)
+        mp3 = MP3(file)
         
         if mp3.is_processed():
+            # Skip already processed MP3s
+            # TODO: Add command line switch to ignore this and process anyway!
             return
 
         tag = handler.tags.Handler(self._config, mp3)
 
         if tag.has_unmapped_tags():
             unmapped = tag.get_unmapped_tags()
-            cmd = shell.Shell(self._config, mp3, tag)
+            cmd = Shell(self._config, mp3, tag)
             cmd.cmdloop(
                 u'Unmapped tags mapped for "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'"'
             )
