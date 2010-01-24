@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from xml.dom.minidom import parse
 from xml.dom.minidom import getDOMImplementation
 
@@ -30,10 +31,10 @@ class Config:
     def load_file(self, file):
         dom = parse(file)
         self._parse_settings(dom.getElementsByTagName('settings').item(0))
-        self.tags = self._parse_set(dom.getElementsByTagName('tags').item(0), 'tag', str)
+        self.tags = self._parse_set(dom.getElementsByTagName('tags').item(0), 'tag', unicode)
         for tag in self.tags:
             self.tagmap[tag.lower()] = tag
-        self.ignore = self._parse_set(dom.getElementsByTagName('ignore').item(0), 'match', str)
+        self.ignore = self._parse_set(dom.getElementsByTagName('ignore').item(0), 'match', unicode)
         self._parse_tagmap(dom.getElementsByTagName('tagmap').item(0))
         self._changed = False
 
