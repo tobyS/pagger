@@ -5,8 +5,9 @@ import re
 
 from config import Config
 from mp3 import MP3
-import handler.tags
 from shell import Shell
+from tags.manager import Manager as TagManager
+from tags.providers.lastfm_provider import LastFMProvider as LastFMTagProvider
 
 class Main:
 
@@ -44,16 +45,22 @@ class Main:
             # TODO: Add command line switch to ignore this and process anyway!
             return
 
-        tag = handler.tags.Handler(self._config, mp3)
+        tag_manager = TagManager(
+                self._config,
+                [ 
+                    LastFMTagProvider(self._config, mp3)
+                ]
+        )
+        tag_manager.retrieve()
 
-        if tag.has_unmapped_tags():
-            unmapped = tag.get_unmapped_tags()
-            cmd = Shell(self._config, mp3, tag)
+        if tag_manager.has_unmapped_tags():
+            unmapped = tag_manager.get_unmapped_tags()
+            cmd = Shell(self._config, mp3, tag_manager)
             cmd.cmdloop(
                 u'Unmapped tags mapped for "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'"'
             )
 
-        if len(tag.get_tags()) == 0:
+        if len(tag_manager.get_tags()) == 0:
             cmd = shell.Shell(self._config, mp3, tag)
             cmd.cmdloop(
                 u'No fitting tags found for "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'". Please assign manually!'
