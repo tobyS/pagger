@@ -119,43 +119,54 @@ class Shell (cmd.Cmd):
         return [i for i in self._list_commands if i.startswith(text)]
 
     def _print_available(self):
-        self._print_heading(u'Available genres')
-        for tag in self._config.tags:
-            print tag
+        self._print_table(u'Available genres', self._config.tags)
 
     def _print_ignored(self):
-        self._print_heading(u'Ignored tag matchings')
-        for tag in self._config.ignore:
-            print tag
+        self._print_table(u'Ignored tag matchings', self._config.ignore)
+
+    def _print_mapping_table(self, heading, mapping):
+        max_len = reduce(
+            max,
+            map(
+                len,
+                mapping.keys()
+            )
+        )
+
+        self._print_table(
+            heading,
+            map(
+                lambda x: u'{0!s: <{1}} → {2!s}'.format(x[0], max_len, x[1]),
+                mapping.items()
+            )
+        )
 
     def _print_mapping(self):
-        self._print_heading(u'Overall tag mapping')
-        for key, val in self._config.tagmap.items():
-            print u'{0!s: <10} → {1!s}'.format(key, val)
+        self._print_mapping_table(u'Overall tag mapping', self._config.tagmap)
 
     def _print_assigned(self):
-        self._print_heading(u'Assigned genres')
-        for tag in self._tag.get_tags():
-            print tag
+        self._print_table(u'Assigned genres', self._tag.get_tags())
 
     def _print_raw(self):
-        self._print_heading(u'Assigned tags')
-        for tag in self._tag.get_raw_tags():
-            print tag
+        self._print_table(u'Assigned tags', self._tag.get_raw_tags())
 
     def _print_mapped(self):
-        self._print_heading(u'Currently mapped')
-        for key, val in self._tag.get_tag_mapping().items():
-            print u'{0!s: <10} → {1!s}'.format(key, val)
+        self._print_mapping_table(u'Currently mapped', self._tag.get_tag_mapping())
 
     def _print_unmapped(self):
-        self._print_heading(u'Not mapped tags')
-        for tag in self._tag.get_unmapped_tags():
-            print tag
+        self._print_table(u'Not mapped tags', self._tag.get_unmapped_tags())
 
     def _print_heading(self, heading):
         print heading
         print u'-' * len(heading)
+
+    def _print_table(self, heading, content):
+        self._print_heading(heading)
+        for val in content:
+            print val
+
+    # def _print_tables(self, heading, content):
+    #     max_len = reduce(max, map(len, content))
 
     # 'ignore' command
 
@@ -190,7 +201,7 @@ class Shell (cmd.Cmd):
     # 'help' command
 
     def help_help(self):
-        print u'Prints available commands. Use "help <command>" to get command help.'
+        print u'Prints available commands. Use "help <command>" to get command help.\n'
 
     # misc
 
