@@ -11,22 +11,12 @@ class Shell (cmd.Cmd):
 
     _tag = None
 
-    _list_commands = [
-        u'available',
-        u'ignored',
-        u'mapping',
-
-        u'assigned',
-        u'raw',
-        u'mapped',
-        u'unmappedu'
-    ]
-
     def __init__(self, config, mp3, tag):
         cmd.Cmd.__init__(self)
         self._config = config
         self._mp3 = mp3
         self._tag = tag
+        self._list_command = ListCommand(self)
 
     def precmd(self, line):
         print ''
@@ -100,72 +90,15 @@ class Shell (cmd.Cmd):
     # 'list' command
 
     def do_list(self, s):
-        params = shlex.split(s)
-
-        if len(params) < 1:
-            params.append('assigned')
-
-        command = params[0]
-
-        if command not in self._list_commands:
-            return self._error(u'Unknown command "' + command + u'". Available are: ' + u', '.join(self._list_commands))
-
-        getattr(self, u'_print_' + command)()
+        self._list_command.do_list(s)
 
     def help_list(self):
-        print u'List tags/genres. Available sub-commands are: ' + u', '.join(self._list_commands) + u'.'
+        self._list_command.help_list()
 
     def complete_list(self, text, line, begindex, endindex):
-        return [i for i in self._list_commands if i.startswith(text)]
+        self._list_command.complete_list(text, line, begindex, endindex)
 
-    def _print_available(self):
-        self._print_table(u'Available genres', self._config.tags)
-
-    def _print_ignored(self):
-        self._print_table(u'Ignored tag matchings', self._config.ignore)
-
-    def _print_mapping_table(self, heading, mapping):
-        max_len = reduce(
-            max,
-            map(
-                len,
-                mapping.keys()
-            )
-        )
-
-        self._print_table(
-            heading,
-            map(
-                lambda x: u'{0!s: <{1}} → {2!s}'.format(x[0], max_len, x[1]),
-                mapping.items()
-            )
-        )
-
-    def _print_mapping(self):
-        self._print_mapping_table(u'Overall tag mapping', self._config.tagmap)
-
-    def _print_assigned(self):
-        self._print_table(u'Assigned genres', self._tag.get_tags())
-
-    def _print_raw(self):
-        self._print_table(u'Assigned tags', self._tag.get_raw_tags())
-
-    def _print_mapped(self):
-        self._print_mapping_table(u'Currently mapped', self._tag.get_tag_mapping())
-
-    def _print_unmapped(self):
-        self._print_table(u'Not mapped tags', self._tag.get_unmapped_tags())
-
-    def _print_heading(self, heading):
-        print heading
-        print u'-' * len(heading)
-
-    def _print_table(self, heading, content):
-        self._print_heading(heading)
-        for val in content:
-            print val
-
-    # def _print_tables(self, heading, content):
+    # def _generate_tables(self, heading, content):
     #     max_len = reduce(max, map(len, content))
 
     # 'ignore' command
@@ -207,3 +140,97 @@ class Shell (cmd.Cmd):
 
     def _error(self, message):
         print u'Error: ' + message
+
+class ListCommand:
+
+    _shell = None
+
+    def __init__(self, shell):
+        self._shell = shell
+
+    _list_commands = {
+        u'available': lambda self: self._generate_table(
+            u'Available genres',
+            self._shell._config.tags
+        ),
+        u'ignored': lambda self: self._generate_table(
+            u'Ignored tag matchings',
+            self._shell._config.ignore
+        ),
+        u'mapping': lambda self: self._generate_mapping_table(
+            u'Overall tag mapping',
+            dict(filter(self._filter_mapping, self._shell._config.tagmap.items()))
+        ),
+        u'assigned': lambda self: self._generate_table(
+            u'Assigned genres',
+            self._shell._tag.get_tags()
+        ),
+        u'raw': lambda self: self._generate_table(
+            u'Assigned tags',
+            self._shell._tag.get_raw_tags()
+        ),
+        u'mapped': lambda self: self._generate_mapping_table(
+            u'Currently mapped',
+            self._shell._tag.get_tag_mapping()
+        ),
+        u'unmapped': lambda self: self._generate_table(
+            u'Not mapped tags',
+            self._shell._tag.get_unmapped_tags()
+        )
+    }
+
+    def do_list(self, s):
+        params = shlex.split(s)
+
+        if len(params) < 1:
+            params.append('assigned')
+
+        command = params[0]
+
+        if not self._list_commands.has_key(command):
+            raise CommandNotFound(
+                u'Unknown command "' + command + u'". Available are: ' + self._available_commands()
+            )
+
+        print self._list_commands[command](self)
+
+    def help_list(self):
+        print u'List tags/genres. Available sub-commands are: ' + self._available_commands() + u'.'
+
+    def complete_list(self, text, line, begindex, endindex):
+        return [i for i in self._list_commands.keys() if i.startswith(text)]
+
+    def _filter_mapping(self, tup):
+        return tup[0].lower() != tup[1].lower()
+
+    def _available_commands(self):
+        return u', '.join(self._list_commands.keys())
+
+    def _generate_heading(self, heading):
+        return heading + u"\n" + u'-' * len(heading) + u"\n"
+
+    def _generate_table(self, heading, content):
+        res = self._generate_heading(heading) + "\n"
+        for val in content:
+            res += val + "\n"
+        return res
+
+    def _generate_mapping_table(self, heading, mapping):
+        max_len = reduce(
+            max,
+            map(
+                len,
+                mapping.keys()
+            )
+        )
+
+        return self._generate_table(
+            heading,
+            map(
+                lambda x: u'{0!s: <{1}} → {2!s}'.format(x[0], max_len, x[1]),
+                mapping.items()
+            )
+        )
+
+class CommandNotFound (Exception):
+    pass
