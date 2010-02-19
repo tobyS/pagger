@@ -43,6 +43,7 @@ class Main:
         if mp3.is_processed():
             # Skip already processed MP3s
             # TODO: Add command line switch to ignore this and process anyway!
+            print u"\n" + u'"' + mp3.get_title() + u'" by "' + mp3.get_artist() + '" has already been processed.'
             return
 
         tag_manager = TagManager(
