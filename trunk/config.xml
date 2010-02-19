@@ -4,17 +4,170 @@
     <maxNum>3</maxNum>
   </settings>
   <tags>
-    <tag>90s</tag>
+    <tag>1980s</tag>
+    <tag>1990s</tag>
+    <tag>2000s</tag>
     <tag>Eurodance</tag>
+    <tag>Blues</tag>
+    <tag>Classic Rock</tag>
+    <tag>Country</tag>
+    <tag>Dance</tag>
+    <tag>Disco</tag>
+    <tag>Funk</tag>
+    <tag>Grunge</tag>
+    <tag>Hip-Hop</tag>
+    <tag>Jazz</tag>
+    <tag>Metal</tag>
+    <tag>New Age</tag>
+    <tag>Oldies</tag>
+    <tag>Other</tag>
+    <tag>Pop</tag>
+    <tag>R&amp;B</tag>
+    <tag>Rap</tag>
+    <tag>Reggae</tag>
+    <tag>Rock</tag>
+    <tag>Techno</tag>
+    <tag>Industrial</tag>
+    <tag>Alternative</tag>
+    <tag>Ska</tag>
+    <tag>Death Metal</tag>
+    <tag>Pranks</tag>
+    <tag>Soundtrack</tag>
+    <tag>Euro-Techno</tag>
+    <tag>Ambient</tag>
+    <tag>Trip-Hop</tag>
+    <tag>Vocal</tag>
+    <tag>Jazz+Funk</tag>
+    <tag>Fusion</tag>
+    <tag>Trance</tag>
+    <tag>Classical</tag>
+    <tag>Instrumental</tag>
+    <tag>Acid</tag>
+    <tag>House</tag>
+    <tag>Game</tag>
+    <tag>Sound Clip</tag>
+    <tag>Gospel</tag>
+    <tag>Noise</tag>
+    <tag>Alternative Rock</tag>
+    <tag>Bass</tag>
+    <tag>Soul</tag>
+    <tag>Punk</tag>
+    <tag>Space</tag>
+    <tag>Meditative</tag>
+    <tag>Instrumental Pop</tag>
+    <tag>Instrumental Rock</tag>
+    <tag>Ethnic</tag>
+    <tag>Gothic</tag>
+    <tag>Darkwave</tag>
+    <tag>Techno-Industrial</tag>
+    <tag>Electronic</tag>
+    <tag>Pop-Folk</tag>
+    <tag>Eurodance</tag>
+    <tag>Dream</tag>
+    <tag>Southern Rock</tag>
+    <tag>Comedy</tag>
+    <tag>Cult</tag>
+    <tag>Gangsta</tag>
+    <tag>Top 40</tag>
+    <tag>Christian Rap</tag>
+    <tag>Pop/Funk</tag>
+    <tag>Jungle</tag>
+    <tag>Native US</tag>
+    <tag>Cabaret</tag>
+    <tag>New Wave</tag>
+    <tag>Psychadelic</tag>
+    <tag>Rave</tag>
+    <tag>Showtunes</tag>
+    <tag>Trailer</tag>
+    <tag>Lo-Fi</tag>
+    <tag>Tribal</tag>
+    <tag>Acid Punk</tag>
+    <tag>Acid Jazz</tag>
+    <tag>Polka</tag>
+    <tag>Retro</tag>
+    <tag>Musical</tag>
+    <tag>Rock &amp; Roll</tag>
+    <tag>Hard Rock</tag>
+    <tag>Folk</tag>
+    <tag>Folk-Rock</tag>
+    <tag>National Folk</tag>
+    <tag>Swing</tag>
+    <tag>Fast Fusion</tag>
+    <tag>Bebob</tag>
+    <tag>Latin</tag>
+    <tag>Revival</tag>
+    <tag>Celtic</tag>
+    <tag>Bluegrass</tag>
+    <tag>Avantgarde</tag>
+    <tag>Gothic Rock</tag>
+    <tag>Progressive Rock</tag>
+    <tag>Psychedelic Rock</tag>
+    <tag>Symphonic Rock</tag>
+    <tag>Slow Rock</tag>
+    <tag>Big Band</tag>
+    <tag>Chorus</tag>
+    <tag>Easy Listening</tag>
+    <tag>Acoustic</tag>
+    <tag>Humour</tag>
+    <tag>Speech</tag>
+    <tag>Chanson</tag>
+    <tag>Opera</tag>
+    <tag>Chamber Music</tag>
+    <tag>Sonata</tag>
+    <tag>Symphony</tag>
+    <tag>Booty Bass</tag>
+    <tag>Primus</tag>
+    <tag>Porn Groove</tag>
+    <tag>Satire</tag>
+    <tag>Slow Jam</tag>
+    <tag>Club</tag>
+    <tag>Tango</tag>
+    <tag>Samba</tag>
+    <tag>Folklore</tag>
+    <tag>Ballad</tag>
+    <tag>Power Ballad</tag>
+    <tag>Rhythmic Soul</tag>
+    <tag>Freestyle</tag>
+    <tag>Duet</tag>
+    <tag>Punk Rock</tag>
+    <tag>Drum Solo</tag>
+    <tag>Acapella</tag>
+    <tag>Euro-House</tag>
+    <tag>Dance Hall</tag>
+    <tag>Goa</tag>
+    <tag>Drum &amp; Bass</tag>
+    <tag>Club - House</tag>
+    <tag>Hardcore</tag>
+    <tag>Terror</tag>
+    <tag>Indie</tag>
+    <tag>BritPop</tag>
+    <tag>Negerpunk</tag>
+    <tag>Polsk Punk</tag>
+    <tag>Beat</tag>
+    <tag>Christian Gangsta Rap</tag>
+    <tag>Heavy Metal</tag>
+    <tag>Black Metal</tag>
+    <tag>Crossover</tag>
+    <tag>Contemporary Christian</tag>
+    <tag>Christian Rock</tag>
+    <tag>Merengue</tag>
+    <tag>Salsa</tag>
+    <tag>Thrash Metal</tag>
+    <tag>Anime</tag>
+    <tag>JPop</tag>
+    <tag>Synthpop</tag>
   </tags>
+  <ignore>
+	<match>.*been *there.*</match>
+  </ignore>
   <tagmap>
     <mapping>
       <from>1990</from>
-      <to>90s</to>
+      <to>1990s</to>
     </mapping>
     <mapping>
       <from>1980</from>
-      <to>80s</to>
+      <to>1980s</to>
   </mapping>
   </tagmap>
 </config>
