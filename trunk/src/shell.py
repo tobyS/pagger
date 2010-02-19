@@ -18,6 +18,12 @@ class Shell (cmd.Cmd):
         self._tag = tag
         self._list_command = ListCommand(self)
 
+    def cmdloop(self, intro):
+        print "\n" + intro + "\n"
+        self.do_list("all")
+        cmd.Cmd.cmdloop(self)
+
+
     def precmd(self, line):
         print ''
         return cmd.Cmd.precmd(self, line)
@@ -218,11 +224,12 @@ class ListCommand:
 
     def _generate_table(self, heading, content):
         res = self._generate_heading(heading) + "\n"
-        for val in content:
-            res += val + "\n"
-        return res
+        return res + u"\n".join(content)
 
     def _generate_mapping_table(self, heading, mapping):
+        if len(mapping) == 0:
+            return ''
+
         max_len = max(
             map(
                 len,
