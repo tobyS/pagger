@@ -227,15 +227,12 @@ class ListCommand:
         return res + u"\n".join(content)
 
     def _generate_mapping_table(self, heading, mapping):
-        if len(mapping) == 0:
-            return ''
-
         max_len = max(
             map(
                 len,
                 mapping.keys()
             )
-        )
+        ) if len(mapping) > 0 else 0
 
         return self._generate_table(
             heading,
