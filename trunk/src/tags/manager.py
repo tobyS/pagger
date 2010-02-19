@@ -17,6 +17,8 @@ class Manager:
     def __init__(self, config, providers):
         self._providers = providers
         self._config = config
+        self._raw_tags = set()
+        self._tag_mapping = {}
 
     def retrieve(self):
         for provider in self._providers:
