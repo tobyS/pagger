@@ -21,6 +21,7 @@ class Manager:
     def retrieve(self):
         for provider in self._providers:
             self._raw_tags |= provider.retrieve_tags()
+        self._map_tags()
 
     def add_tag(self, tag):
         self._raw_tags.add(tag)
@@ -42,7 +43,7 @@ class Manager:
         return self._tag_mapping
 
     def has_unmapped_tags(self):
-        return self._raw_tags != set(self._tag_mapping.keys())
+        return len(self.get_unmapped_tags()) != 0
 
     def get_unmapped_tags(self):
         return self._raw_tags - set(self._tag_mapping.keys())
