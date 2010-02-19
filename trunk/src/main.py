@@ -54,14 +54,13 @@ class Main:
         tag_manager.retrieve()
 
         if tag_manager.has_unmapped_tags():
-            unmapped = tag_manager.get_unmapped_tags()
             cmd = Shell(self._config, mp3, tag_manager)
             cmd.cmdloop(
                 u'Unmapped tags mapped for "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'"'
             )
 
         if len(tag_manager.get_tags()) == 0:
-            cmd = shell.Shell(self._config, mp3, tag)
+            cmd = Shell(self._config, mp3, tag_manager)
             cmd.cmdloop(
                 u'No fitting tags found for "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'". Please assign manually!'
             )
@@ -69,9 +68,9 @@ class Main:
         if self._config.changed():
             self._config.save()
 
-        print u'Assigning genres "' + u', '.join(tag.get_tags()) + u'" to "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'".'
+        print u"\n" + u'Assigning genres "' + u', '.join(tag_manager.get_tags()) + u'" to "' + mp3.get_title() + u'" by "' + mp3.get_artist() + u'".'
 
-        mp3.set_genres(tag.get_tags())
+        mp3.set_genres(tag_manager.get_tags())
         mp3.set_processed()
         mp3.save()
         
