@@ -102,7 +102,7 @@ class Shell (cmd.Cmd):
         self._list_command.help_list()
 
     def complete_list(self, text, line, begindex, endindex):
-        self._list_command.complete_list(text, line, begindex, endindex)
+        return self._list_command.complete_list(text, line, begindex, endindex)
 
     # def _generate_tables(self, heading, content):
     #     max_len = reduce(max, map(len, content))
@@ -224,7 +224,7 @@ class ListCommand:
 
     def _generate_table(self, heading, content):
         res = self._generate_heading(heading) + "\n"
-        return res + u"\n".join(content)
+        return res + u"\n".join(sorted(content))
 
     def _generate_mapping_table(self, heading, mapping):
         max_len = max(
