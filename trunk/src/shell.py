@@ -149,6 +149,13 @@ class ListCommand:
         self._shell = shell
 
     _list_commands = {
+        u'all': lambda self: self._generate_multi_table(
+            [
+                self._list_commands['assigned'](self),
+                self._list_commands['mapped'](self),
+                self._list_commands['unmapped'](self)
+            ]
+        ),
         u'available': lambda self: self._generate_table(
             u'Available genres',
             self._shell._config.tags
@@ -183,7 +190,7 @@ class ListCommand:
         params = shlex.split(s)
 
         if len(params) < 1:
-            params.append('assigned')
+            params.append('all')
 
         command = params[0]
 
@@ -216,8 +223,7 @@ class ListCommand:
         return res
 
     def _generate_mapping_table(self, heading, mapping):
-        max_len = reduce(
-            max,
+        max_len = max(
             map(
                 len,
                 mapping.keys()
@@ -231,6 +237,34 @@ class ListCommand:
                 mapping.items()
             )
         )
+
+    def _generate_multi_table(self, tables):
+        tablesLists = map(
+            lambda table: table.split("\n"),
+            tables
+        )
+        tableLineLengths = map(
+            lambda table: max(
+                map(
+                    len,
+                    table
+                )
+            ),
+            tablesLists
+        )
+        maxLines = max(
+            map(len, tablesLists)
+        )
+        res = "";
+        for lineId in range(maxLines):
+            for tableId in range(len(tablesLists)):
+                res += u'{0!s: <{1}}'.format(
+                    tablesLists[tableId][lineId] if lineId < len(tablesLists[tableId]) else '',
+                    tableLineLengths[tableId] + 5
+                )
+            res += "\n"
+        return res
+
 
 class CommandNotFound (Exception):
     pass
