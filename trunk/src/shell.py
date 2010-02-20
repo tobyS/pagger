@@ -96,7 +96,10 @@ class Shell (cmd.Cmd):
     # 'list' command
 
     def do_list(self, s):
-        self._list_command.do_list(s)
+        try:
+            self._list_command.do_list(s)
+        except CommandNotFound as (errno, errstr):
+            self._error(errstr)
 
     def help_list(self):
         self._list_command.help_list()
