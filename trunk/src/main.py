@@ -7,7 +7,8 @@ from config import Config
 from mp3 import MP3
 from shell import Shell
 from tags.manager import Manager as TagManager
-from tags.providers.lastfm_provider import LastFMProvider as LastFMTagProvider
+from tags.providers.lastfm_provider import LastFMProvider
+from tags.providers.freebase_provider import FreebaseProvider
 
 class Main:
 
@@ -49,7 +50,8 @@ class Main:
         tag_manager = TagManager(
                 self._config,
                 [ 
-                    LastFMTagProvider(self._config, mp3)
+                    LastFMProvider(self._config, mp3),
+                    FreebaseProvider(self._config, mp3),
                 ]
         )
         tag_manager.retrieve()
