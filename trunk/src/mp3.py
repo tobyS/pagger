@@ -1,8 +1,11 @@
 from mutagen.id3 import ID3
 from mutagen.id3 import TCON
 from mutagen.id3 import TXXX
+from mutagen.id3 import ID3NoHeaderError
 
 from datetime import datetime
+
+class MP3NoID3(Warning): pass
 
 class MP3:
 
@@ -16,7 +19,11 @@ class MP3:
 
     def __init__(self, file):
         self._file = file
-        self._id3 = ID3(file)
+        
+        try:
+            self._id3 = ID3(file)
+        except ID3NoHeaderError:
+            raise MP3NoID3
 
     def get_title(self):
         if self._title != None:

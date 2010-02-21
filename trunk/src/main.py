@@ -5,7 +5,9 @@ import re
 
 from config import Config
 from mp3 import MP3
+from mp3 import MP3NoID3
 from shell import Shell
+from mutagen.id3 import ID3NoHeaderError
 from tags.manager import Manager as TagManager
 from tags.providers.lastfm_provider import LastFMProvider
 from tags.providers.freebase_provider import FreebaseProvider
@@ -39,14 +41,19 @@ class Main:
                     traceback.print_exc(file=sys.stdout)
 
     def _handle(self, file):
-        mp3 = MP3(file)
-        
+        try:
+            mp3 = MP3(file)
+        except MP3NoID3:
+            # Skip because no ID3 tag found
+            print u"\n" + u'"' + file + '" skipped because no ID3 tag found.'
+            return
+            
         if mp3.is_processed():
             # Skip already processed MP3s
             # TODO: Add command line switch to ignore this and process anyway!
             print u"\n" + u'"' + mp3.get_title() + u'" by "' + mp3.get_artist() + '" has already been processed.'
             return
-
+        
         tag_manager = TagManager(
                 self._config,
                 [ 
